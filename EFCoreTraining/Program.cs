@@ -279,8 +279,28 @@ ETicaretContext context = new();
 //Entries methodu detect changesi tetikleyir
 
 
+//ChangeTracker - tekrarlayan datalari tek bir instance uzerinden getirir, 
+
+//AsNoTracking - ChangeTrackerin eksini edecek, izlenmeni engelleyecek
+var users = await context.Urunler.AsNoTracking().ToListAsync();
+//sadece listelediyimiz ucun as no tracking edirik ve artiq gelen datanin uzerinde hec bir deyisiklik ede bilmeyeceyik
+//ancaq manuel olaraq update etmek olur, hansi ki bu zaman change tracker gerekmirdi onsuz
+//asnotracking bir terefden maliyyeti salarken bir terefden artira bilir, bele ki, eger sorguladigimiz cedveller foreign key ile elaqelidirse, her obyekt ucun bir instamce yaranacaq, ona gore de bele meqamlarda istifade etmemek daha meslehetlidi
+//ya da bunun evezine AsNoTrackingWithIdentityResolution ist etmeliyik
+
+//AsNoTrackingWithIdentityResolution - AsNoTrackinge gore yavasdir, CgangeTrackere gore ise daha suretlidi
+
+//yeni tekrarlayan deyerlere gore deyisir
+
+//AsTracking - default olan trackingi iradeli olaraq aktiv edir
+var users2 = await context.Urunler.AsTracking().ToListAsync();
+
+//UseQueryTrackingBehavior - Tracking EF de hansinin default aktiv oldugunu gosterir
+ //       optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
 
+
+Console.WriteLine();
 
 
 
@@ -292,9 +312,10 @@ public class ETicaretContext: DbContext
 {
     public DbSet<Urun> Urunler { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=ETrade;Trusted_Connection=True");
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     }
 }
 
